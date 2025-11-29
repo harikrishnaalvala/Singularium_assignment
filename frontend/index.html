@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Smart Task Analyzer</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header class="page-header">
+        <h1>Smart Task Analyzer</h1>
+        <p class="subtitle">Score and prioritize your work in seconds.</p>
+    </header>
+
+    <main class="layout">
+        <section class="card" aria-labelledby="task-form-heading">
+            <h2 id="task-form-heading">Add Task</h2>
+            <form id="task-form" novalidate>
+                <div class="field-grid">
+                    <label>
+                        Title
+                        <input type="text" id="task-title" required placeholder="Fix login bug">
+                    </label>
+                    <label>
+                        Due Date
+                        <input type="date" id="task-due-date" required>
+                    </label>
+                    <label>
+                        Estimated Hours
+                        <input type="number" id="task-hours" min="0" step="0.25" required value="1">
+                    </label>
+                    <label>
+                        Importance (1-10)
+                        <input type="number" id="task-importance" min="1" max="10" required value="5">
+                    </label>
+                    <label class="wide">
+                        Dependencies (comma separated IDs)
+                        <input type="text" id="task-dependencies" placeholder="task-1,task-2">
+                    </label>
+                </div>
+                <button type="submit" class="btn primary">Add Task</button>
+            </form>
+        </section>
+
+        <section class="card" aria-labelledby="bulk-input-heading">
+            <h2 id="bulk-input-heading">Bulk Input</h2>
+            <p class="hint">Paste an array of task objects to replace the current list.</p>
+            <textarea id="bulk-json" rows="8" placeholder='[
+  {"title": "Fix login bug", "due_date": "2025-11-30", "estimated_hours": 3, "importance": 8, "dependencies": []}
+]'></textarea>
+            <div class="action-row">
+                <button id="load-json" class="btn">Load JSON</button>
+                <button id="clear-tasks" class="btn">Clear Tasks</button>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="strategy-heading">
+            <h2 id="strategy-heading">Priority Strategy</h2>
+            <label for="strategy-select" class="hint">Choose how the analyzer weights urgency, importance, and effort.</label>
+            <select id="strategy-select">
+                <option value="smart_balance">Smart Balance (default)</option>
+                <option value="fastest_wins">Fastest Wins</option>
+                <option value="high_impact">High Impact</option>
+                <option value="deadline_driven">Deadline Driven</option>
+            </select>
+            <button id="analyze-btn" class="btn primary">Analyze Tasks</button>
+            <button id="suggest-btn" class="btn secondary">Get Suggestions</button>
+            <label class="suggest-input">
+                Suggestions to fetch
+                <input type="number" id="suggest-count" min="1" max="10" value="3">
+            </label>
+        </section>
+
+        <section class="card" aria-labelledby="task-table-heading">
+            <div class="section-header">
+                <h2 id="task-table-heading">Current Tasks</h2>
+                <span id="task-count" class="chip">0 tasks</span>
+            </div>
+            <div class="table-wrapper">
+                <table id="task-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Due</th>
+                            <th>Hours</th>
+                            <th>Importance</th>
+                            <th>Dependencies</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="analysis-heading">
+            <h2 id="analysis-heading">Analysis Results</h2>
+            <div id="messages" role="status" aria-live="polite"></div>
+
+            <div class="results-group">
+                <h3>Priority List</h3>
+                <ul id="priority-list" class="result-list"></ul>
+            </div>
+
+            <div class="results-group">
+                <h3>Blocked Tasks</h3>
+                <ul id="blocked-list" class="result-list"></ul>
+            </div>
+
+            <div class="results-group">
+                <h3>Needs Attention</h3>
+                <ul id="attention-list" class="result-list"></ul>
+            </div>
+
+            <div class="results-group">
+                <h3>Config Used</h3>
+                <pre id="config-used" class="config-view"></pre>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="suggestions-heading">
+            <h2 id="suggestions-heading">Suggestions</h2>
+            <ul id="suggestions-list" class="result-list"></ul>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <small>&copy; <span id="year"></span> Smart Task Analyzer</small>
+    </footer>
+
+    <script src="{% static 'script.js' %}" defer></script>
+</body>
+</html>
